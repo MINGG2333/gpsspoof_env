@@ -22,7 +22,7 @@ def lonlat_to_xy(lon, lat):
     return x, y
 
 
-def xy_to_lonlat(x, y):
+def xy_to_lonlat(x, y): # useful
     lon, lat = my_proj(x, y, inverse=True)
     return lon, lat
 
@@ -42,7 +42,7 @@ def on_left(pt, pt1, pt2):
 def distance_to_line(pt, pt1, pt2):
     slope = (pt2[1] - pt1[1]) / (pt2[0] - pt1[0])
     b = pt2[1] - slope*pt2[0]
-    c = pt[1] + (pt[0]/slope)
+    # c = pt[1] + (pt[0]/slope) if slope != 0 else float('inf')
     dist = abs(pt[1] - slope*pt[0] - b) / math.sqrt(1+slope*slope)
     return dist
 
@@ -50,12 +50,13 @@ def distance_to_line(pt, pt1, pt2):
 def calc_crosstrack_error(waypt, waypts):
     curr_idx = -1
     for i in range(len(waypts)):
-        if abs(waypt[0] - waypts[i][0]) < 1e-5:
+        if abs(waypt[0] - waypts[i][0]) < 1e-5: # for timestep
             curr_idx = i
             break
     if curr_idx == -1:
         print("Waypoint matching error!")
         raise
+
     if curr_idx == len(waypts) - 1:
         pt1 = [waypts[curr_idx - 1][1], waypts[curr_idx - 1][2]]
         pt2 = [waypts[curr_idx][1], waypts[curr_idx][2]]
@@ -142,8 +143,8 @@ class SimControl:
         logging.info("Collision: Autonomous vehicle collided with {}".format(name2))
 
     def next_yuv_frame(self):
-        freeFramePath = os.path.join(self.frame_dir, "free_frame_" + str(self.frame_id) + ".png")
-        self.free_cam.save(freeFramePath, compression=3)
+        # freeFramePath = os.path.join(self.frame_dir, "free_frame_" + str(self.frame_id) + ".png")
+        # self.free_cam.save(freeFramePath, compression=3)
         ret_frame_id = self.frame_id
         self.frame_id += 1
         return ret_frame_id
@@ -189,6 +190,8 @@ class SimControl:
         return throttle
 
     def run_control(self, curr_waypt):
+        if calc_crosstrack_error(curr_waypt, self.plan_waypts) > 1.0:
+            raise "find calc_crosstrack_error"
         sim_state = self.get_sim_state()
         speed = sim_state.speed
         yaw = np.radians(sim_state.position[5])

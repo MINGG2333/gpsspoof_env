@@ -31,6 +31,7 @@
 ## 2. Generate your Malicious GPS JSON file
 
 Good luck!
+cp ./data/gps_pose.json ./gps.json
 
 ## 3. Run simulation
 - Enable the pipenv environemnt if you haven't: ``pipenv shell``

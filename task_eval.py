@@ -11,7 +11,7 @@ import argparse
 import matplotlib.pyplot as plt
 import folium
 
-from sim_control import SimControl, lonlat_to_xy
+from sim_control import SimControl, lonlat_to_xy, xy_to_lonlat
 
 SIM_FRAMES = 200
 
@@ -52,8 +52,8 @@ def parse_pose(pose_file, plot=False):
 
 
 def task_eval(logdir, benign_pose_file, input_pose_file, **kwargs):
-    waypts_plan = parse_pose(benign_pose_file)
-    waypts_input = parse_pose(input_pose_file)
+    waypts_plan = parse_pose(benign_pose_file, plot=True)
+    waypts_input = parse_pose(input_pose_file, plot=True)
     if len(waypts_plan) != len(waypts_input):
         print("Number of GPS inputs is incorrect:", len(waypts_input), "vs", len(waypts_plan))
         raise
@@ -96,6 +96,16 @@ def task_eval(logdir, benign_pose_file, input_pose_file, **kwargs):
     pose_file = os.path.join(logdir, 'adc_pose.json')
     with open(pose_file, 'w') as f:
         json.dump(poses, f, indent=2)
+
+    # gps pose
+    gps_pose0 = [[stp]+list(xy_to_lonlat(x, y))+[10.117] for stp, x, y in waypts_input]
+    gps_pose = [{
+            "timestamp": round(stp, 2),
+            "latitude": lat,
+            "longitude": lon,
+            "altitude": altitude} for stp, lon, lat, altitude in gps_pose0]
+    with open(os.path.join(logdir, 'gps_pose.json'), 'w') as f:
+        json.dump(gps_pose, f, indent=2)
 
 
 def main():
