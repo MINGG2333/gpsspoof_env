@@ -77,7 +77,21 @@ def task_eval(logdir, benign_pose_file, input_pose_file, **kwargs):
     frame_count = 0
     while True:
         frame_id = sim_ctrl.next_yuv_frame()
-        curr_waypt = waypts_input[waypt_idx]
+
+        # modify gps in xy
+        if waypt_idx < 10:
+            waypts_input[waypt_idx][-1] += 0.394 / 10 * waypt_idx
+        elif waypt_idx < 20:
+            waypts_input[waypt_idx][-1] += (0.394 - 0.394 / 10 * (waypt_idx - 10))
+        elif waypt_idx < 25:
+            waypts_input[waypt_idx][-1] += -0.0
+        elif waypt_idx < 40:
+            waypts_input[waypt_idx][-1] += 0.394
+        else:
+            waypts_input[waypt_idx][-1] += 0.394
+
+        # simulation tick
+        curr_waypt = waypts_input[waypt_idx] # 202 steps
         logging.info("Time {:.2f}, max left deviation {:.2f}, max right deviation {:.2f}".format(sim_ctrl.sim_time, abs(min(min_lat_dev, 0.0)), abs(max_lat_dev)))
         sim_state, lat_dev = sim_ctrl.run_control(curr_waypt)
         max_lat_dev = max(max_lat_dev, lat_dev)
@@ -87,6 +101,7 @@ def task_eval(logdir, benign_pose_file, input_pose_file, **kwargs):
             "latitude": sim_state.position[0],
             "longitude": sim_state.position[1],
             "altitude": sim_state.position[4]})
+
         waypt_idx += 1
         frame_count += 1
         if frame_id >= SIM_FRAMES:

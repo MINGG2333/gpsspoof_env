@@ -30,7 +30,9 @@
 
 ## 2. Generate your Malicious GPS JSON file
 
-Good luck!
+gps.json provided by official can be used in local simulation
+cp task_traj_1.json ~/Downloads/gpsspoof_env/gps.json
+
 cp ./data/gps_pose.json ./gps.json
 
 ## 3. Run simulation
