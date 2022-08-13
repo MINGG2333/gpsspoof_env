@@ -65,6 +65,7 @@ def calc_crosstrack_error(waypt, waypts):
         pt2 = [waypts[curr_idx + 1][1], waypts[curr_idx + 1][2]]
     pt = [waypt[1], waypt[2]]
     crosstrack_error = distance_to_line(pt, pt1, pt2)
+    print("crosstrack_error: {}m".format(crosstrack_error))
     return crosstrack_error
 
 
